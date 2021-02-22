@@ -1,0 +1,6 @@
+flask
+gunicorn
+librosa
+pandas
+werkzeug
+scipy
