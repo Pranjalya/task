@@ -15,3 +15,15 @@ Do not spend more than 1-2 hours on any task.
 - Add this script to your forked repo.
 
 When finished, email the URL of your forked repo to joe@hyfe.ai.
+
+## Results
+
+- `app` contains Flask server deployed at https://cough-detector.herokuapp.com/ 
+- It can be accessed through CLI too by hitting on https://cough-detector.herokuapp.com/detect_coughs/ 
+
+Example : 
+```
+curl -X POST -F file=@$file https://cough-detector.herokuapp.com/detect_coughs
+```
+
+- Example scripts have been provided in [Python format](https://github.com/Pranjalya/task/blob/main/test.py) and in [Shell script](https://github.com/Pranjalya/task/blob/main/test.sh)
