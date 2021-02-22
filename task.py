@@ -4,17 +4,19 @@ import os
 import librosa
 from scipy.signal import find_peaks
 from tqdm import tqdm
+
 # from datetime import datetime, timedelta
 import datetime as dt
 import random
-# Read in relevant data files
-samples_df = pd.read_csv('samples_short.csv')
-ground_truth = pd.read_csv('ground_truth_short.csv')
-perfect = pd.read_csv('perfect.csv')
 
-directory_of_sounds = 'sounds/samples/'
+# Read in relevant data files
+samples_df = pd.read_csv("samples_short.csv")
+ground_truth = pd.read_csv("ground_truth_short.csv")
+perfect = pd.read_csv("perfect.csv")
+
+directory_of_sounds = "sounds/samples/"
 os.path.isdir(directory_of_sounds)
-len(os.listdir(directory_of_sounds + '/vi95kMQ65UeU7K1wae12D1GUeXd2'))  # should be 22
+len(os.listdir(directory_of_sounds + "/vi95kMQ65UeU7K1wae12D1GUeXd2"))  # should be 22
 
 #########################
 # TASK DESCRIPTION
@@ -38,7 +40,9 @@ len(os.listdir(directory_of_sounds + '/vi95kMQ65UeU7K1wae12D1GUeXd2'))  # should
 # Feel free to use libraries, but know that this is not a test of your modeling skills.
 
 
-def detect_coughs(file='sounds/samples/vi95kMQ65UeU7K1wae12D1GUeXd2/sample-1613659252601.m4a'):
+def detect_coughs(
+    file="sounds/samples/vi95kMQ65UeU7K1wae12D1GUeXd2/sample-1613659252601.m4a",
+):
     # Replace the below random code with something meaningful which
     # generates a one-column dataframe with a column named "peak_start"
 
@@ -46,47 +50,53 @@ def detect_coughs(file='sounds/samples/vi95kMQ65UeU7K1wae12D1GUeXd2/sample-16136
 
     # We take audio samples who have a minimum amplitude of 0.275 and there's a prominence of 1.2
     # under 3 second window so as we get the peakest point of cough
-    peak_indices, _ = find_peaks(audio, height=(0.275, None), prominence=1.15, distance=3*sr)
+    peak_indices, _ = find_peaks(
+        audio, height=(0.275, None), prominence=1.15, distance=3 * sr
+    )
     # Get the timestamps relative to sample indices
     peaks = peak_indices / sr
     print(peaks)
-    out = pd.DataFrame({'peak_start': peaks})
+    out = pd.DataFrame({"peak_start": peaks})
     return out
 
 
 # Run function on all sounds
-sounds_dir = directory_of_sounds + 'vi95kMQ65UeU7K1wae12D1GUeXd2/'
+sounds_dir = directory_of_sounds + "vi95kMQ65UeU7K1wae12D1GUeXd2/"
 all_sounds = os.listdir(sounds_dir)
 out_list = []
 for i in tqdm(range(len(all_sounds))):
     this_file = sounds_dir + all_sounds[i]
     this_result = detect_coughs(file=this_file)
-    this_result['file'] = this_file
+    this_result["file"] = this_file
     out_list.append(this_result)
 final = pd.concat(out_list)
-final.to_csv('final.csv')
+final.to_csv("final.csv")
 
 # Grade the approach
 true_positives = 0
 # Detect if coughs were correctly corrected
 for i in range(len(perfect)):
     this_cough = perfect.iloc[i]
-    same_file = final[final['file'] == this_cough['file']]
+    same_file = final[final["file"] == this_cough["file"]]
     # Get time differences
-    same_file['time_diff'] = this_cough['peak_start'] - same_file['peak_start']
-    keep = same_file[same_file['time_diff'] <= 0.4]
-    keep = keep[keep['time_diff'] >= -0.4]
+    same_file["time_diff"] = this_cough["peak_start"] - same_file["peak_start"]
+    keep = same_file[same_file["time_diff"] <= 0.4]
+    keep = keep[keep["time_diff"] >= -0.4]
     if len(keep) > 0:
-        print('Correctly found the cough at ', str(
-            round(this_cough['peak_start'], 2)) + ' in ' + this_cough['file'])
+        print(
+            "Correctly found the cough at ",
+            str(round(this_cough["peak_start"], 2)) + " in " + this_cough["file"],
+        )
         true_positives = true_positives + 1
     else:
-        print('Missed the cough at ', str(
-            round(this_cough['peak_start'], 2)) + ' in ' + this_cough['file'])
+        print(
+            "Missed the cough at ",
+            str(round(this_cough["peak_start"], 2)) + " in " + this_cough["file"],
+        )
         pass
 # Now measure false positives
 false_positives = len(final) - true_positives
-print('Detected ' + str(false_positives) + ' false positives')
+print("Detected " + str(false_positives) + " false positives")
 # Calculate final score
 final_score = (true_positives * 10) - false_positives
-print('FINAL SCORE OF: ' + str(final_score))
+print("FINAL SCORE OF: " + str(final_score))
