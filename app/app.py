@@ -94,4 +94,4 @@ def error413(e):
 
 
 if __name__ == "__main__":
-    app.run(threaded=True, port=8080)
+    app.run(port=8080)
